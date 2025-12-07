@@ -1,0 +1,3 @@
+/home/leo/projects/my_proto/build/CMakeFiles/myproto.dir
+/home/leo/projects/my_proto/build/CMakeFiles/edit_cache.dir
+/home/leo/projects/my_proto/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/home/leo/projects/my_proto/build",
+  "command": "/usr/bin/cc -DMP_V_MAJOR=0 -DMP_V_MINOR=0 -DMP_V_PATCH=1  -std=gnu99 -o CMakeFiles/myproto.dir/src/main.c.o -c /home/leo/projects/my_proto/src/main.c",
+  "file": "/home/leo/projects/my_proto/src/main.c",
+  "output": "CMakeFiles/myproto.dir/src/main.c.o"
+},
+{
+  "directory": "/home/leo/projects/my_proto/build",
+  "command": "/usr/bin/cc -DMP_V_MAJOR=0 -DMP_V_MINOR=0 -DMP_V_PATCH=1  -std=gnu99 -o CMakeFiles/myproto.dir/src/myproto.c.o -c /home/leo/projects/my_proto/src/myproto.c",
+  "file": "/home/leo/projects/my_proto/src/myproto.c",
+  "output": "CMakeFiles/myproto.dir/src/myproto.c.o"
+}
+]
