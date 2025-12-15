@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < ready_events; i++) {
             int main_fd = events[i].data.fd;
 
-            printf("main_fd = %d;\n", main_fd);
+            // printf("main_fd = %d;\n", main_fd);
 
             if (main_fd == socket_fd) {
                 struct sockaddr_in client;
@@ -122,20 +122,28 @@ int main(int argc, char** argv) {
 
                 memcpy(client->data_buffer + client->data_length, buffer, MAX_BUFFER_SIZE);
                 client->data_length += received;
-                printf("buffer size = %ld\n", client->buffer_size);
+                // printf("buffer size = %ld\n", client->buffer_size);
                 printf("data length = %ld\n", client->data_length);
-                for (size_t i = 0; i < client->data_length; i++)
-                    printf("buf[%ld] = %d (byte %ld)\n", i, client->data_buffer[i], i + 1);
-                printf("Received.\n");
+                // for (size_t i = 0; i < client->data_length; i++)
+                //     printf("buf[%ld] = %d (byte %ld)\n", i, client->data_buffer[i], i + 1);
+                // printf("Received.\n");
                 myproto_data data;
                 int result = myproto_parse_bytes(&data, client->data_buffer, client->data_length);
                 if (result == -1) {
-                    printf("Invalid data length. Closing connection with %d\n", main_fd);
+                    printf("Error while parsing bytes. Closing connection with %d\n", main_fd);
                     goto close;
                 }
                 char data_return[32];
-                sprintf(data_return, "Server: " MP_VERSION "\nClient: %d.%d.%d", data.version.major, data.version.minor, data.version.patch);
+                sprintf(data_return, "\nServer: " MP_VERSION "\nClient: %d.%d.%d", data.version.major, data.version.minor, data.version.patch);
                 send(main_fd, data_return, strlen(data_return), 0);
+                for (size_t i = 0; i < 2; i++) {
+                    printf("field %s = %s;\n", data.fields[i].key, data.fields[i].value);
+                }
+                switch (data.method) {
+                    case MP_MET_CLOSE:
+                        goto close;
+                        break;
+                }
                 goto debuff;
                 continue;
             debuff:
