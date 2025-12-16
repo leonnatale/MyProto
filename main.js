@@ -13,7 +13,12 @@ const message = [
     1, // method
 
     0, // add field
-    ...Buffer.from("field_name\0"), // null terminated strings only
+    ...Buffer.from("name\0"), // null terminated strings only
+    1, // set field value
+    ...Buffer.from("hi\0"),
+
+    0, // add field
+    ...Buffer.from("field_name\0"),
     1, // set field value
     ...Buffer.from("field_value\0"),
 ];

@@ -27,6 +27,7 @@ typedef struct {
 
 typedef struct {
     uint8_t method;
+    uint8_t used_fields;
     myproto_version version;
     myproto_entry fields[256];
 } myproto_data;
@@ -37,3 +38,4 @@ typedef struct {
 } myproto_client;
 
 int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size);
+void myproto_free_data(myproto_data* data);

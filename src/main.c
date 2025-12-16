@@ -129,16 +129,16 @@ int main(int argc, char** argv) {
                 // printf("Received.\n");
                 myproto_data data;
                 int result = myproto_parse_bytes(&data, client->data_buffer, client->data_length);
-                if (result == -1) {
-                    printf("Error while parsing bytes. Closing connection with %d\n", main_fd);
+                if (result < 0) {
+                    printf("Error while parsing bytes. Error %d. Closing connection with %d\n", result, main_fd);
                     goto close;
                 }
                 char data_return[32];
                 sprintf(data_return, "\nServer: " MP_VERSION "\nClient: %d.%d.%d", data.version.major, data.version.minor, data.version.patch);
                 send(main_fd, data_return, strlen(data_return), 0);
-                for (size_t i = 0; i < 2; i++) {
-                    printf("field %s = %s;\n", data.fields[i].key, data.fields[i].value);
-                }
+                for (size_t i = 0; i < data.used_fields; i++)
+                    printf("field '%s' = '%s';\n", data.fields[i].key, data.fields[i].value);
+                myproto_free_data(&data);
                 switch (data.method) {
                     case MP_MET_CLOSE:
                         goto close;
@@ -146,12 +146,14 @@ int main(int argc, char** argv) {
                 }
                 goto debuff;
                 continue;
+
             debuff:
                 printf("Reseting buffer!\n");
                 client->data_length = 0;
                 client->buffer_size = MAX_BUFFER_SIZE;
                 client->data_buffer = realloc(client->data_buffer, sizeof(uint8_t) * MAX_BUFFER_SIZE);
                 continue;
+
             close:
                 printf("Bye client! %d\nClosed with %d\nerrno = %d;\n", main_fd, received, errno);
                 free(client->data_buffer);

@@ -7,6 +7,7 @@
 int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size) {
     if (size < 4) return -1;
     data->method = bytes[3];
+    data->used_fields = 0;
     data->version = (myproto_version) {
         .major = bytes[0],
         .minor = bytes[1],
@@ -20,26 +21,53 @@ int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size) {
         if (current_byte == MP_CMD_ADD_FIELD) {
             char field_name[257] = "\0";
             strcpy(field_name, (char*)&bytes[++index]);
-            printf("{%s}\n", field_name);
             index += strlen(field_name) + 1;
+
+            if (data->used_fields > 0)
+                for (size_t i = 0; i < data->used_fields; i++)
+                    if (!strcmp(data->fields[i].key, field_name)) return -3;
 
             if (strlen(field_name) > 0) {
                 strcpy(data->fields[field_index].key, field_name);
-                break;
+                data->used_fields++;
             }
         }
 
-        // if (current_byte == MP_CMD_SET_FIELD) {
-        //     if (data->fields[field_index].key == NULL) return -1;
-        //     char field_value[256 * 1024] = "\0";
+        if (current_byte == MP_CMD_SET_FIELD) {
+            if (strlen(data->fields[field_index].key) == 0) return -2;
+            char* field_value;
+            size_t field_size = 0;
+            size_t field_temp_index = index;
 
-        //     while (bytes[index] != 0) {
-        //         strcat(field_value, (char*)&bytes[index]);
-        //         index++;
-        //     }
+            while (bytes[field_temp_index] != 0) {
+                field_size++;
+                field_temp_index++;
+            }
 
-        //     if (strlen(field_value) > 0) data->fields[field_index].value = field_value;
-        // }
+            field_value = (char*)malloc(sizeof(char) * field_size);
+
+            strcpy(field_value, (char*)&bytes[++index]);
+            index += strlen(field_value) + 1;
+
+            if (strlen(field_value) > 0) {
+                if (data->fields[field_index].value == NULL)
+                     data->fields[field_index].value = (char*)malloc(sizeof(char) * field_size);
+                else
+                    data->fields[field_index].value = realloc(data->fields[field_index].value, sizeof(char) * field_size);
+
+                strcpy(data->fields[field_index].value, field_value);
+                field_index++;
+            }
+
+            free(field_value);
+        }
     }
     return 0;
+}
+
+void myproto_free_data(myproto_data* data) {
+    if (data->used_fields == 0) return;
+   for (size_t i = 0; i < data->used_fields; i++)
+       if (strlen(data->fields[i].value) > 0) free(data->fields[i].value);
+   data->used_fields = 0;
 }
