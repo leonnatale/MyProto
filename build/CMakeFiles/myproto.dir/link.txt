@@ -1,1 +1,0 @@
-/usr/bin/cc -Wl,--dependency-file=CMakeFiles/myproto.dir/link.d CMakeFiles/myproto.dir/src/main.c.o CMakeFiles/myproto.dir/src/myproto.c.o -o myproto
