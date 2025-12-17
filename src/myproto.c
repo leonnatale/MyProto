@@ -31,11 +31,8 @@ int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size) {
                 strcpy(data->fields[field_index].key, field_name);
                 data->used_fields++;
             }
-        }
-
-        if (current_byte == MP_CMD_SET_FIELD) {
+        } else if (current_byte == MP_CMD_SET_FIELD) {
             if (strlen(data->fields[field_index].key) == 0) return -2;
-            char* field_value;
             size_t field_size = 0;
             size_t field_temp_index = index;
 
@@ -44,22 +41,21 @@ int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size) {
                 field_temp_index++;
             }
 
-            field_value = (char*)malloc(sizeof(char) * field_size);
+            char* field_value = (char*)malloc(sizeof(char) * field_size);
 
             strcpy(field_value, (char*)&bytes[++index]);
             index += strlen(field_value) + 1;
 
             if (strlen(field_value) > 0) {
                 if (data->fields[field_index].value == NULL)
-                     data->fields[field_index].value = (char*)malloc(sizeof(char) * field_size);
-                else
-                    data->fields[field_index].value = realloc(data->fields[field_index].value, sizeof(char) * field_size);
-
+                    free(data->fields[field_index].value);
+                data->fields[field_index].value = (char*)malloc(sizeof(char) * field_size);
                 strcpy(data->fields[field_index].value, field_value);
+                free(field_value);
                 field_index++;
             }
-
-            free(field_value);
+        } else {
+            index++;
         }
     }
     return 0;
@@ -67,7 +63,9 @@ int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size) {
 
 void myproto_free_data(myproto_data* data) {
     if (data->used_fields == 0) return;
-   for (size_t i = 0; i < data->used_fields; i++)
-       if (strlen(data->fields[i].value) > 0) free(data->fields[i].value);
+   for (size_t i = 0; i < data->used_fields; i++) {
+       if (data->fields[i].value == NULL) continue;
+      free(data->fields[i].value);
+   }
    data->used_fields = 0;
 }

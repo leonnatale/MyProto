@@ -10,7 +10,7 @@ const message = [
     0, // minor
     1, // patch
 
-    1, // method
+    0, // method
 
     0, // add field
     ...Buffer.from("name\0"), // null terminated strings only
