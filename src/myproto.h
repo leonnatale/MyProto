@@ -12,13 +12,24 @@
 #define MP_MET_FETCH  1
 #define MP_MET_DEFINE 2
 
+#define MP_CMD_ADD_FIELD 0
+#define MP_CMD_SET_FIELD 1
+
+
 typedef struct {
     uint8_t major, minor, patch;
 } myproto_version;
 
 typedef struct {
+    char key[257];
+    char* value;
+} myproto_entry;
+
+typedef struct {
     uint8_t method;
+    uint8_t used_fields;
     myproto_version version;
+    myproto_entry fields[256];
 } myproto_data;
 
 typedef struct {
@@ -27,3 +38,4 @@ typedef struct {
 } myproto_client;
 
 int myproto_parse_bytes(myproto_data* data, uint8_t* bytes, size_t size);
+void myproto_free_data(myproto_data* data);
